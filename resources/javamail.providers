@@ -1,0 +1,11 @@
+# Providers with class packages changed due to repackaging and bundling javamail within the valves jar.
+
+# JavaMail IMAP provider Oracle
+protocol=imap; type=store; class=repackaged.com.sun.mail.imap.IMAPStore; vendor=Oracle;
+protocol=imaps; type=store; class=repackaged.com.sun.mail.imap.IMAPSSLStore; vendor=Oracle;
+# JavaMail SMTP provider Oracle
+protocol=smtp; type=transport; class=repackaged.com.sun.mail.smtp.SMTPTransport; vendor=Oracle;
+protocol=smtps; type=transport; class=repackaged.com.sun.mail.smtp.SMTPSSLTransport; vendor=Oracle;
+# JavaMail POP3 provider Oracle
+protocol=pop3; type=store; class=repackaged.com.sun.mail.pop3.POP3Store; vendor=Oracle;
+protocol=pop3s; type=store; class=repackaged.com.sun.mail.pop3.POP3SSLStore; vendor=Oracle;
