@@ -1,0 +1,21 @@
+<component name="libraryTable">
+  <library name="javax.mail-api">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/build/javax.mail-api.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/build/tomcat-annotations-api.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/build/tomcat-api.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/build/tomcat-catalina.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/build/tomcat-coyote.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/build/tomcat-el-api.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/build/tomcat-jni.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/build/tomcat-jsp-api.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/build/tomcat-juli.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/build/tomcat-servlet-api.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/build/tomcat-util-scan.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/build/tomcat-util.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/build/repackaged.javax.mail.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
