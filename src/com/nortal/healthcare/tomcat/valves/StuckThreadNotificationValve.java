@@ -20,13 +20,14 @@ import org.apache.catalina.LifecycleException;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.valves.Constants;
-import org.apache.catalina.valves.ValveBase;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
 import org.apache.tomcat.util.res.StringManager;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -37,8 +38,11 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * This valve allows to detect requests that take a long time to process, which
  * might indicate that the thread that is processing it is stuck.
+ *
+ * Modified version of org.apache.catalina.valves.StuckThreadDetectionValve
+ * to support sending emails about stuck threads.
  */
-public class StuckThreadNotificationValve extends ValveBase {
+public class StuckThreadNotificationValve extends NotificationPollingValveBase {
 
     /**
      * Logger
@@ -84,7 +88,7 @@ public class StuckThreadNotificationValve extends ValveBase {
 
     /**
      * Specifies the threshold (in seconds) used when checking for stuck threads.
-     * If &lt;=0, the detection is disabled. The default is 600 seconds.
+     * If <=0, the detection is disabled. The default is 600 seconds.
      *
      * @param threshold
      *            The new threshold in seconds
@@ -108,8 +112,8 @@ public class StuckThreadNotificationValve extends ValveBase {
 
     /**
      * Specifies the threshold (in seconds) before stuck threads are interrupted.
-     * If &lt;=0, the interruption is disabled. The default is -1.
-     * If &gt;=0, the value must actually be &gt;= threshold.
+     * If <=0, the interruption is disabled. The default is -1.
+     * If >=0, the value must actually be >= threshold.
      *
      * @param interruptThreadThreshold
      *            The new thread interruption threshold in seconds
@@ -134,6 +138,10 @@ public class StuckThreadNotificationValve extends ValveBase {
             log.debug("Monitoring stuck threads with threshold = "
                           + threshold
                           + " sec");
+            String emailRecipient = getEmailRecipient();
+            if (emailRecipient != null && !"".equals(emailRecipient)) {
+                log.debug("Sending stuck thread notifications to: " + emailRecipient);
+            }
         }
     }
 
@@ -154,6 +162,7 @@ public class StuckThreadNotificationValve extends ValveBase {
             Throwable th = new Throwable();
             th.setStackTrace(monitoredThread.getThread().getStackTrace());
             log.warn(msg, th);
+            addStuckThreadNotification(msg, th);
         }
     }
 
@@ -170,6 +179,17 @@ public class StuckThreadNotificationValve extends ValveBase {
             // be warn
             log.warn(msg);
         }
+    }
+
+    private void addStuckThreadNotification(String message, Throwable throwable) {
+        if (throwable != null) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            throwable.printStackTrace(pw);
+            String stackTraceString = sw.toString();
+            message = message + "\n\nStack trace:\n" + stackTraceString;
+        }
+        addNotification(message);
     }
 
     /**
@@ -419,4 +439,5 @@ public class StuckThreadNotificationValve extends ValveBase {
     private enum MonitoredThreadState {
         RUNNING, STUCK, DONE;
     }
+
 }
