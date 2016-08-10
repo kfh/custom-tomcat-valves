@@ -1,6 +1,6 @@
 <project name="ehealth-valves" default="compile" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
     <description>
-        eHealth Tomcat valves
+        Custom Tomcat valves
     </description>
 
     <property name="src" location="src"/>
@@ -9,6 +9,9 @@
 
     <path id="classpath">
         <fileset dir="lib/build">
+            <include name="*.jar"/>
+        </fileset>
+        <fileset dir="lib/runtime">
             <include name="*.jar"/>
         </fileset>
     </path>
@@ -34,7 +37,7 @@
 
     <target name="ivy" depends="ivy-clean-lib" description="Retrieves all dependencies">
         <ivy:retrieve pattern="lib/[conf]/[artifact].[ext]" />
-        <jarjar jarfile="lib/build/repackaged.javax.mail.jar">
+        <jarjar jarfile="lib/runtime/repackaged.javax.mail.jar">
             <zipfileset src="lib/static/javax.mail.jar"/>
             <rule pattern="javax.mail.**" result="repackaged.javax.mail.@1"/>
             <rule pattern="com.sun.**" result="repackaged.com.sun.@1"/>
