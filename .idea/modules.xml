@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/tomcat-valves.iml" filepath="$PROJECT_DIR$/tomcat-valves.iml" />
+      <module fileurl="file://$PROJECT_DIR$/custom-tomcat-valves.iml" filepath="$PROJECT_DIR$/custom-tomcat-valves.iml" />
     </modules>
   </component>
 </project>
