@@ -3,12 +3,6 @@
         eHealth Tomcat valves
     </description>
 
-    <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant">
-        <classpath>
-            <pathelement location="lib/static/ivy.jar" />
-        </classpath>
-    </taskdef>
-
     <property name="src" location="src"/>
     <property name="build" location="build"/>
     <property name="dist" location="dist"/>
@@ -23,6 +17,15 @@
         <fileset dir="lib/jarjar" />
     </path>
 
+    <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant">
+        <classpath>
+            <pathelement location="lib/static/ivy.jar" />
+        </classpath>
+    </taskdef>
+
+    <taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask"
+             classpathref="jarjar-classpath"/>
+
     <target name="ivy-clean-lib" description="Cleans lib directories, excludes lib/static">
         <delete includeemptydirs="true" failonerror="false">
             <fileset dir="lib" excludes="static/**/*"/>
@@ -31,8 +34,6 @@
 
     <target name="ivy" depends="ivy-clean-lib" description="Retrieves all dependencies">
         <ivy:retrieve pattern="lib/[conf]/[artifact].[ext]" />
-        <taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask"
-                 classpathref="jarjar-classpath"/>
         <jarjar jarfile="lib/build/repackaged.javax.mail.jar">
             <zipfileset src="lib/static/javax.mail.jar"/>
             <rule pattern="javax.mail.**" result="repackaged.javax.mail.@1"/>
@@ -59,9 +60,7 @@
     </target>
 
     <target name="jar" depends="compile">
-        <taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask"
-                 classpathref="jarjar-classpath"/>
-        <jarjar jarfile="dist/ehealth-valves.jar">
+        <jarjar jarfile="dist/custom-tomcat-valves.jar">
             <fileset dir="build"/>
             <zipfileset src="lib/static/javax.mail.jar"/>
             <rule pattern="javax.mail.**" result="repackaged.javax.mail.@1"/>
