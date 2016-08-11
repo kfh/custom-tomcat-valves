@@ -4,10 +4,7 @@ import org.apache.catalina.LifecycleException;
 import org.apache.catalina.valves.ValveBase;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
-import repackaged.javax.mail.Message;
-import repackaged.javax.mail.MessagingException;
-import repackaged.javax.mail.Session;
-import repackaged.javax.mail.Transport;
+import repackaged.javax.mail.*;
 import repackaged.javax.mail.internet.MimeMessage;
 
 import java.util.Date;
@@ -109,10 +106,16 @@ public abstract class NotificationPollingValveBase extends ValveBase {
         private void sendEmail(String content) {
             log.info("sending email, recipient: " + getEmailRecipient());
             Properties props = new Properties();
+            Provider provider = new Provider(Provider.Type.TRANSPORT,
+                                             "smtp",
+                                             "repackaged.com.sun.mail.smtp.SMTPTransport",
+                                             "Oracle",
+                                             null);
             props.put("mail.smtp.host", getSmtpHost());
             Session session = Session.getInstance(props, null);
 
             try {
+                session.setProvider(provider);
                 MimeMessage msg = new MimeMessage(session);
                 msg.setFrom(getEmailRecipient());
                 msg.setRecipients(Message.RecipientType.TO,

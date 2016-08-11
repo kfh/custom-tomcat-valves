@@ -68,7 +68,6 @@
             <zipfileset src="lib/static/javax.mail.jar"/>
             <rule pattern="javax.mail.**" result="repackaged.javax.mail.@1"/>
             <rule pattern="com.sun.**" result="repackaged.com.sun.@1"/>
-            <metainf dir="resources"/>
         </jarjar>
     </target>
 </project>
