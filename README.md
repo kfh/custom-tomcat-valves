@@ -32,8 +32,11 @@ Example usage in hosts section in **`server.xml`**:
 Valve that sends notifications (emails) about responses with a status code of 500 (internal server error)
 
 ## Building and usage
-Run the following command to build the jar with dependencies:  
-`ant clean ivy jar`
+Run the following command to build the jar with dependencies 
+(your JAVA_HOME environment variable should point to JDK8):  
+* Ant: `ant clean ivy jar`
+* Gradle: `./gradlew bundledJar`
+
 
 Copy the resulting jar from `dist/` to `$TOMCAT_HOME/lib/`
 

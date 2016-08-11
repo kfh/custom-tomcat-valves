@@ -3,8 +3,8 @@
         Custom Tomcat valves
     </description>
 
-    <property name="src" location="src"/>
-    <property name="build" location="build"/>
+    <property name="src" location="src/main/java"/>
+    <property name="build" location="build/classes/main"/>
     <property name="dist" location="dist"/>
 
     <path id="classpath">

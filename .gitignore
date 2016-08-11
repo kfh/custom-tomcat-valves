@@ -16,6 +16,7 @@
 ## File-based project format:
 *.iws
 
+.gradle
 build/
 lib/build
 lib/runtime

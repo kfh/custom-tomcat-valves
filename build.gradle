@@ -1,0 +1,58 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        flatDir {
+            dirs 'lib/static'
+        }
+    }
+    dependencies {
+        classpath "org.anarres.jarjar:jarjar-gradle:1.0.0"
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'org.anarres.jarjar'
+
+repositories {
+    mavenCentral()
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+    compile('org.anarres.jarjar:jarjar-core:1.0.0')
+    compile('org.anarres.jarjar:jarjar-gradle:1.0.0')
+    compile('org.apache.tomcat:tomcat-annotations-api:8.0.21')
+    compile('org.apache.tomcat:tomcat-catalina:8.0.21')
+    compile('org.apache.tomcat:tomcat-coyote:8.0.21')
+    compile('org.apache.tomcat:tomcat-el-api:8.0.21')
+    compile('org.apache.tomcat:tomcat-jni:8.0.21')
+    compile('org.apache.tomcat:tomcat-jsp-api:8.0.21')
+    compile('org.apache.tomcat:tomcat-juli:8.0.21')
+    compile('org.apache.tomcat:tomcat-servlet-api:8.0.21')
+    compile('org.apache.tomcat:tomcat-util:8.0.21')
+    compile('org.apache.tomcat:tomcat-util-scan:8.0.21')
+    compile('javax.mail:javax.mail-api:1.5.5')
+    compile jarjar.repackage('repackaged.javax.mail') {
+        from files('lib/static/javax.mail.jar')
+        classRename 'javax.mail.**', 'repackaged.javax.mail.@1'
+        classRename 'com.sun.**', 'repackaged.com.sun.@1'
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.14'
+}
+
+task displayCache << {
+    configurations.compile.each { println it }
+}
+
+task bundledJar(type: Jar) {
+    baseName = 'custom-tomcat-valves'
+    destinationDir = file('dist')
+    from { zipTree(file('build/jarjar/repackaged.javax.mail.jar')) }
+    with jar
+}
