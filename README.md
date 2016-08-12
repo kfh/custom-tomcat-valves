@@ -29,7 +29,21 @@ Example usage in hosts section in **`server.xml`**:
 ```
 
 ### ErrorReportNotificationValve
-Valve that sends notifications (emails) about responses with a status code of 500 (internal server error)
+Modified version of `org.apache.catalina.valves.ErrorReportValve` that sends notifications (emails) about responses with a status code of 500 (internal server error)
+
+Example usage in **`server.xml`**:  
+(need to override errorReportValveClass in default host element and also add a valve element) 
+```
+<Host name="localhost"  appBase="webapps"
+    errorReportValveClass="com.nortal.healthcare.tomcat.valves.ErrorReportNotificationValve"
+    unpackWARs="true" autoDeploy="true">
+    
+    <Valve className="com.nortal.healthcare.tomcat.valves.ErrorReportNotificationValve" 
+        pollingDelay="300"
+        emailRecipient="example@email.com" 
+        smtpHost="example.host" 
+    />
+```
 
 ## Building and usage
 Run the following command to build the jar with dependencies 

@@ -16,23 +16,21 @@
  */
 package com.nortal.healthcare.tomcat.valves;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.util.Scanner;
-
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.util.RequestUtil;
 import org.apache.catalina.util.ServerInfo;
 import org.apache.catalina.valves.Constants;
-import org.apache.catalina.valves.ValveBase;
 import org.apache.coyote.ActionCode;
 import org.apache.tomcat.util.ExceptionUtils;
 import org.apache.tomcat.util.res.StringManager;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.Scanner;
 
 /**
  * <p>Implementation of a Valve that outputs HTML error pages.</p>
@@ -47,8 +45,10 @@ import org.apache.tomcat.util.res.StringManager;
  * @author <a href="mailto:nicolaken@supereva.it">Nicola Ken Barozzi</a> Aisa
  * @author <a href="mailto:stefano@apache.org">Stefano Mazzocchi</a>
  * @author Yoav Shapira
+ *
+ * MODIFIED: Added support to send emails about internal server errors.
  */
-public class ErrorReportNotificationValve extends ValveBase {
+public class ErrorReportNotificationValve extends NotificationPollingValveBase {
 
     private boolean showReport = true;
 
@@ -99,6 +99,12 @@ public class ErrorReportNotificationValve extends ValveBase {
 
         Throwable throwable = (Throwable) request.getAttribute(RequestDispatcher.ERROR_EXCEPTION);
 
+        // MODIFICATION: Gather and add information about the exception to a queue
+        // to be sent by email in case an internal server error has occurred.
+        if (response.getStatus() == HttpServletResponse.SC_INTERNAL_SERVER_ERROR) {
+            formatAndAddNotification(request, response, throwable);
+        }
+
         // If an async request is in progress and is not going to end once this
         // container thread finishes, do not trigger error page handling - it
         // will be triggered later if required.
@@ -131,6 +137,30 @@ public class ErrorReportNotificationValve extends ValveBase {
 
     // ------------------------------------------------------ Protected Methods
 
+    protected void formatAndAddNotification(Request request, Response response, Throwable throwable) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Internal server error (500) detected for request: ");
+        sb.append(request.getRequestURL());
+        sb.append("\n\nResponse message:\n");
+        sb.append(response.getMessage());
+        sb.append("\nRequest parameters:\n");
+        sb.append(RequestInspectionUtil.formatParameters(request.getParameterMap()));
+        if (throwable != null) {
+            sb.append("\nStack trace:\n");
+            sb.append(getPartialServletStackTrace(throwable));
+            sb.append("\nRoot cause:\n");
+            int loops = 0;
+            Throwable rootCause = throwable.getCause();
+            String rootCauseStackTrace = null;
+            while (rootCause != null && (loops < 10)) {
+                rootCauseStackTrace = getPartialServletStackTrace(rootCause);
+                rootCause = rootCause.getCause();
+                loops++;
+            }
+            sb.append(rootCauseStackTrace);
+        }
+        addNotification(sb.toString());
+    }
 
     /**
      * Prints out an error report.
