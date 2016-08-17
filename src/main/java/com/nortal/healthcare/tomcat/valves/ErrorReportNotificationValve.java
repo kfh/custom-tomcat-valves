@@ -80,6 +80,15 @@ public class ErrorReportNotificationValve extends NotificationPollingValveBase {
         // Perform the request
         getNext().invoke(request, response);
 
+        // MODIFICATION: Gather and add information about the exception to a queue
+        // to be sent by email in case an internal server error has occurred.
+        // This is done before response.isCommitted() check so an email would always
+        // be sent in case of an error.
+        Throwable throwable = (Throwable) request.getAttribute(RequestDispatcher.ERROR_EXCEPTION);
+        if (response.getStatus() == HttpServletResponse.SC_INTERNAL_SERVER_ERROR) {
+            formatAndAddNotification(request, response, throwable);
+        }
+
         if (response.isCommitted()) {
             if (response.setErrorReported()) {
                 // Error wasn't previously reported but we can't write an error
@@ -95,14 +104,6 @@ public class ErrorReportNotificationValve extends NotificationPollingValveBase {
                 response.getCoyoteResponse().action(ActionCode.CLOSE_NOW, null);
             }
             return;
-        }
-
-        Throwable throwable = (Throwable) request.getAttribute(RequestDispatcher.ERROR_EXCEPTION);
-
-        // MODIFICATION: Gather and add information about the exception to a queue
-        // to be sent by email in case an internal server error has occurred.
-        if (response.getStatus() == HttpServletResponse.SC_INTERNAL_SERVER_ERROR) {
-            formatAndAddNotification(request, response, throwable);
         }
 
         // If an async request is in progress and is not going to end once this
