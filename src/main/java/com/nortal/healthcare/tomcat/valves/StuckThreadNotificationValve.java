@@ -162,7 +162,7 @@ public class StuckThreadNotificationValve extends NotificationPollingValveBase {
             Throwable th = new Throwable();
             th.setStackTrace(monitoredThread.getThread().getStackTrace());
             log.warn(msg, th);
-            addStuckThreadNotification(msg, th, monitoredThread.getRequestParams());
+            addStuckThreadNotification(msg, th);
         }
     }
 
@@ -182,12 +182,7 @@ public class StuckThreadNotificationValve extends NotificationPollingValveBase {
     }
 
     private void addStuckThreadNotification(String message,
-                                            Throwable throwable,
-                                            Map<String, String[]> requestParams) {
-        String formattedParams = RequestInspectionUtil.formatParameters(requestParams);
-        if (!formattedParams.isEmpty()) {
-            message = message + "\n\nRequest parameters:\n" + formattedParams;
-        }
+                                            Throwable throwable) {
         if (throwable != null) {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
@@ -223,7 +218,6 @@ public class StuckThreadNotificationValve extends NotificationPollingValveBase {
         }
         MonitoredThread monitoredThread = new MonitoredThread(Thread.currentThread(),
                                                               requestUrl.toString(),
-                                                              request.getParameterMap(),
                                                               interruptThreadThreshold > 0);
         activeThreads.put(key, monitoredThread);
 
@@ -311,7 +305,6 @@ public class StuckThreadNotificationValve extends NotificationPollingValveBase {
          */
         private final Thread thread;
         private final String requestUri;
-        private final Map<String, String[]> requestParams;
         private final long start;
         private final AtomicInteger state = new AtomicInteger(
             MonitoredThreadState.RUNNING.ordinal());
@@ -328,11 +321,9 @@ public class StuckThreadNotificationValve extends NotificationPollingValveBase {
 
         public MonitoredThread(Thread thread,
                                String requestUri,
-                               Map<String, String[]> requestParams,
                                boolean interruptible) {
             this.thread = thread;
             this.requestUri = requestUri;
-            this.requestParams = requestParams;
             this.start = System.currentTimeMillis();
             if (interruptible) {
                 interruptionSemaphore = new Semaphore(1);
@@ -348,10 +339,6 @@ public class StuckThreadNotificationValve extends NotificationPollingValveBase {
         public String getRequestUri() {
             return requestUri;
         }
-
-        public Map<String, String[]> getRequestParams() {
-            return requestParams;
-        };
 
         public long getActiveTimeInMillis() {
             return System.currentTimeMillis() - start;
