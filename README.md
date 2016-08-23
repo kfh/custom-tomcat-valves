@@ -6,6 +6,8 @@ Base valve class that support adding notifications to a queue to be emailed to a
 
 Attributes:  
 **emailRecipient** (String)  
+**emailSender** (String - defaults to emailRecipient)  
+**emailSubject** (String - defaults to 'Notification from CLASSNAME')  
 **smtpHost** (String)  
 **pollingDelay** (Long - 10 seconds default)  
 
@@ -23,7 +25,9 @@ Example usage in hosts section in **`server.xml`**:
 <Valve className="com.nortal.healthcare.tomcat.valves.StuckThreadNotificationValve" 
     threshold="600"
     pollingDelay="300"
-    emailRecipient="example@email.com" 
+    emailRecipient="example1@email.com" 
+    emailSender="example2@email.com"
+    emailSubject="Stuck thread in ENVIRONMENT"
     smtpHost="example.host" 
     />
 ```

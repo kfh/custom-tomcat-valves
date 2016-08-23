@@ -33,6 +33,8 @@ public abstract class NotificationPollingValveBase extends ValveBase {
      * Recipient e-mail address to send a notification of the stuck thread to.
      */
     private String emailRecipient;
+    private String emailSender;
+    private String emailSubject;
     private String smtpHost;
     private Long pollingDelay;
 
@@ -40,6 +42,22 @@ public abstract class NotificationPollingValveBase extends ValveBase {
 
     public void setEmailRecipient(String emailRecipient) {
         this.emailRecipient = emailRecipient;
+    }
+
+    public String getEmailSubject() {
+        return emailSubject;
+    }
+
+    public void setEmailSubject(String emailSubject) {
+        this.emailSubject = emailSubject;
+    }
+
+    public String getEmailSender() {
+        return emailSender == null ? emailRecipient : emailSender;
+    }
+
+    public void setEmailSender(String emailSender) {
+        this.emailSender = emailSender;
     }
 
     public String getSmtpHost() { return smtpHost; }
@@ -104,7 +122,8 @@ public abstract class NotificationPollingValveBase extends ValveBase {
         }
 
         private void sendEmail(String content) {
-            log.info("sending email, recipient: " + getEmailRecipient());
+            log.info("sending email, recipient: " + getEmailRecipient()
+                         + "; sender: "  + getEmailSender());
             Properties props = new Properties();
             Provider provider = new Provider(Provider.Type.TRANSPORT,
                                              "smtp",
@@ -117,10 +136,13 @@ public abstract class NotificationPollingValveBase extends ValveBase {
             try {
                 session.setProvider(provider);
                 MimeMessage msg = new MimeMessage(session);
-                msg.setFrom(getEmailRecipient());
+                msg.setFrom(getEmailSender());
                 msg.setRecipients(Message.RecipientType.TO,
                                   getEmailRecipient());
-                msg.setSubject("Notification from Tomcat Valve");
+                String emailSubject = getEmailSubject() == null
+                    ? "Notification from " + getClass().getSimpleName()
+                    : getEmailSubject();
+                msg.setSubject(emailSubject);
                 msg.setSentDate(new Date());
                 msg.setText(content);
                 Transport.send(msg);
